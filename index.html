@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scope Click Calculator</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Scope Click Calculator</h1>
+
+    <label>Adjustment Type:</label>
+    <select id="adjustmentType">
+      <option value="moa">MOA</option>
+      <option value="mil">MIL</option>
+    </select>
+
+    <label>Point of Impact Shift (inches):</label>
+    <input type="number" id="poi" />
+
+    <label>Distance to Target (yards):</label>
+    <input type="number" id="distance" />
+
+    <label>Click Value:</label>
+    <select id="clickValue">
+      <!-- Values will change based on type -->
+    </select>
+
+    <button onclick="calculate()">Calculate Clicks</button>
+
+    <div class="result" id="result"></div>
+
+    <hr />
+
+<h2>Scope Profiles</h2>
+<label>Profile Name:</label>
+<input type="text" id="profileName" />
+
+<div style="margin-top: 10px;">
+  <button onclick="saveProfile()">Save Profile</button>
+  <button onclick="loadProfile()">Load Selected Profile</button>
+  <button onclick="deleteProfile()">Delete Selected Profile</button>
+</div>
+
+<select id="savedProfiles" style="margin-top: 10px; width: 100%;"></select>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
