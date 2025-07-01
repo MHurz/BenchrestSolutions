@@ -23,3 +23,23 @@ hr {
   margin-top: 30px;
   margin-bottom: 20px;
 }
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  text-decoration: none;
+  color: #0077cc;
+  font-weight: bold;
+}
+.back-link:hover {
+  color: #005fa3;
+}
+
+.logo {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  margin: 20px auto;
+  display: block;
+}
+
