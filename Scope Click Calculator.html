@@ -35,18 +35,17 @@
     <hr />
 
 <h2>Scope Profiles</h2>
-<label>Profile Name:</label>
-<input type="text" id="profileName" />
+<label>Select Profile:</label>
+<select id="savedProfiles" style="margin-top: 10px; width: 100%;"></select>
+
+<input type="text" id="profileName" placeholder="Enter Profile Name to Update/Create" />
 
 <div style="margin-top: 10px;">
-  <button onclick="saveProfile()">Save Profile</button>
-  <button onclick="loadProfile()">Load Selected Profile</button>
+  <button onclick="saveProfile()">Create/Update Profile</button>
   <button onclick="deleteProfile()">Delete Selected Profile</button>
 </div>
 
-<select id="savedProfiles" style="margin-top: 10px; width: 100%;"></select>
-
-<a href="index.html" class="back-link">← Back to Home</a>
+<a href="index.html" class="back-link">← Back</a>
 
   </div>
 

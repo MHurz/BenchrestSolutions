@@ -46,7 +46,7 @@ function calculate() {
   const clicks = shift / clickVal;
 
   document.getElementById("result").innerText =
-    `You need to dial approximately ${clicks.toFixed(2)} clicks (${type.toUpperCase()}).`;
+    `Approximately ${clicks.toFixed(2)} clicks (${type.toUpperCase()}).`;
 }
 
 // Set default values on load
@@ -68,6 +68,10 @@ function saveProfile() {
   localStorage.setItem("scopeProfiles", JSON.stringify(profiles));
   alert(`Profile "${name}" saved!`);
   updateSavedProfiles();
+
+  document.getElementById("profileName").value = "";
+
+  document.getElementById("savedProfiles").value = name;
 }
 
 function loadProfile() {
@@ -83,6 +87,14 @@ function loadProfile() {
   adjustmentType.value = profile.type;
   updateClickOptions(); // Refresh click values
   clickValue.value = profile.click;
+
+   // ✅ Clear input fields when loading a new profile
+  document.getElementById("distance").value = "";
+  document.getElementById("poi").value = "";
+  document.getElementById("result").textContent = "";
+
+  // ✅ Store this as the last used profile
+  localStorage.setItem("lastUsedProfile", selected);
 
   alert(`Loaded profile: "${selected}"`);
 }
@@ -126,3 +138,8 @@ function deleteProfile() {
 
 // Call this when page loads
 updateSavedProfiles();
+
+// 🔄 Auto-load profile when selected from dropdown
+document.getElementById("savedProfiles").addEventListener("change", function () {
+  loadProfile();
+});
