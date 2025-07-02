@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Angle Compensation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Angle Compensation</h1>
+
+    <label for="lineDistance">Straight-Line Distance to Target (yards):</label>
+    <input type="number" id="lineDistance" placeholder="e.g., 500" />
+
+    <label for="angle">Angle to Target (degrees):</label>
+    <input type="number" id="angle" placeholder="e.g., -15 for downhill" />
+
+    <button onclick="calculateTrueDistance()">Calculate Horizontal Distance</button>
+
+    <div class="result" id="angleResult"></div>
+
+    <a href="index.html" class="back-link">← Home</a>
+
+  </div>
+
+  <script>
+    function calculateTrueDistance() {
+      const distance = parseFloat(document.getElementById("lineDistance").value);
+      const angle = parseFloat(document.getElementById("angle").value);
+      const resultBox = document.getElementById("angleResult");
+
+      if (isNaN(distance) || isNaN(angle)) {
+        resultBox.innerText = "Please enter valid numbers.";
+        return;
+      }
+
+      const radians = angle * (Math.PI / 180);
+      const horizontal = distance * Math.cos(radians);
+
+      resultBox.innerText = `True horizontal distance: ${horizontal.toFixed(1)} yards`;
+    }
+  </script>
+</body>
+</html>
