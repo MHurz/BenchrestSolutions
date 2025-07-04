@@ -17,10 +17,23 @@
     </select>
 
     <label>Target Size (inches):</label>
-    <input type="number" id="targetSize" placeholder="e.g., 18 for shoulder width" />
+    <input
+      type="number"
+      inputmode="decimal"
+      patern="[0-9]*[.,]?[0-9]*"
+      id="targetSize"
+      placeholder="e.g., 18 for shoulder width"
+    />
 
     <label>Measured Reticle Value:</label>
-    <input type="number" id="reticleValue" placeholder="How many MILs or MOA?" />
+    <input
+      type="number"
+      inputmode="decimal"
+      patern="[0-9]*[.,]?[0-9]*" 
+      type="number"
+      id="reticleValue"
+      placeholder="How many MILs or MOA?"
+    />
 
     <button onclick="estimateDistance()">Estimate Distance</button>
 
