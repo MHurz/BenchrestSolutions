@@ -89,12 +89,6 @@
     function onOrient(e) {
       const roll = e.gamma;   // left-to-right tilt
       const pitch = e.beta;   // front-to-back tilt
-
-            // In landscape, flip negative rolls to positive to reflect top-of-screen orientation
-      const isLandscape = window.matchMedia("(orientation: landscape)").matches;
-      if (isLandscape) {
-        roll = Math.abs(roll);
-      }
       document.getElementById("rollValue").textContent = roll.toFixed(1);
       document.getElementById("pitchValue").textContent = pitch.toFixed(1);
     }
