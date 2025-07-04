@@ -36,10 +36,22 @@
     <h1>Angle Compensation</h1>
 
     <label for="lineDistance">Straight-Line Distance to Target (yards):</label>
-    <input type="number" id="lineDistance" placeholder="e.g., 500yds" />
+    <input 
+      type="number"
+      inputmode="decimal"
+      pattern="[0-9]*[.,]?[0-9]*"
+      id="lineDistance"
+      placeholder="e.g., 500yds"
+    />
 
     <label for="angle">Angle to Target (degrees):</label>
-    <input type="number" id="angle" placeholder="e.g., -15 for downhill" />
+    <input 
+      type="number"
+      inputmode="decimal"
+      pattern="[0-9]*[.,-]?[0-9]*"
+      id="angle"
+      placeholder="e.g., -15 for downhill"
+    />
 
     <button onclick="calculateTrueDistance()">Calculate Horizontal Distance</button>
 
