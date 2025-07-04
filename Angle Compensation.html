@@ -92,25 +92,14 @@
       }
     }
 
-    document.getElementById("startLevelBtn").addEventListener("click", async () => {
-      try {
-        await enableMotion();
-        window.addEventListener("deviceorientation", onOrient);
-        document.getElementById("startLevelBtn").style.display = "none";
-      } catch (e) {
-        alert(e.message);
-      }
-    });
-
     function onOrient(e) {
-      const roll = e.gamma;   // left-to-right tilt
-      const pitch = e.beta;   // front-to-back tilt
-
+      const roll = e.gamma;
+      const pitch = e.beta;
       document.getElementById("rollValue").textContent = roll.toFixed(1);
       document.getElementById("pitchValue").textContent = pitch.toFixed(1);
-    } 
-    
-        document.getElementById("startLevelBtn").addEventListener("click", async () => {
+    }
+
+    document.getElementById("startLevelBtn").addEventListener("click", async () => {
       try {
         await enableMotion();
         window.addEventListener("deviceorientation", onOrient);
@@ -130,6 +119,6 @@
         alert("Readout locked.");
       }, 3000);
     });
-    </script>
+  </script>
 </body>
 </html>
