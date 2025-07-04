@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reticle Reference Viewer</title>
+  <title>Benchrest Solutions - Reticle Reference Viewer</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .reticle-viewer { position: relative; width: 100%; margin-top: 20px; }
@@ -31,6 +31,7 @@
     <h1>Reticle Reference Viewer</h1>
 <label for="reticleType">Select Reticle Type:</label>
 <select id="reticleType">
+<option value="select">--Select--</option>
   <option value="viper">Viper HST VMR1 MRAD</option>
   <option value="dback">Diamondback HP Deadhold BDC</option>  <!-- new -->
 </select>
@@ -62,6 +63,7 @@ const reticles = {
       { left: 40, top: 50, label: '1 MOA major mark' }
     ]
   },
+  select: {},
   viper: {                                   // ← your new key
     src: 'Viper HST VMR1 MRAD.png',
     hotspots: [
