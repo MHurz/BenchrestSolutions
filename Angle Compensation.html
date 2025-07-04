@@ -6,7 +6,6 @@
   <title>Angle Compensation</title>
   <link rel="stylesheet" href="style.css" />
     <style>
-
     .readout {
       margin: 20px auto;
       max-width: 300px;
@@ -32,12 +31,11 @@
       border: none;
       border-radius: 4px;
     }
-    #lockReadoutBtn:disabled,
-    #resetBtn:disabled {
+    #lockReadoutBtn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
-  </style>
+      </style>
 </head>
 <body>
   <div class="container">
@@ -59,7 +57,7 @@
     <h2>Digital Angle Readout</h2>
     <button id="startLevelBtn">Start Level</button>
     <button id="lockReadoutBtn" disabled>Lock Readout (3s)</button>
-    <button id="resetBtn" disabled>Reset Readout</button>
+
     <div class="readout" id="angleReadout">
       <p>Roll: <span id="rollValue">0.0</span>°</p>
       <p>Pitch: <span id="pitchValue">0.0</span>°</p>
@@ -93,20 +91,24 @@
     }
 
     function onOrient(e) {
-      const roll = e.gamma;
-      const pitch = e.beta;
+      const roll = e.gamma;   // left-to-right tilt
+      const pitch = e.beta;   // front-to-back tilt
       document.getElementById("rollValue").textContent = roll.toFixed(1);
       document.getElementById("pitchValue").textContent = pitch.toFixed(1);
     }
 
-    // Start level and enable lock
     document.getElementById("startLevelBtn").addEventListener("click", async () => {
       try {
         await enableMotion();
-        if (!orientationActive) {
-          window.addEventListener("deviceorientation", onOrient);
-          orientationActive = true;
+        // If already active, reset previous listener and values
+        if (orientationActive) {
+          window.removeEventListener("deviceorientation", onOrient);
+          document.getElementById("rollValue").textContent = "0.0";
+          document.getElementById("pitchValue").textContent = "0.0";
         }
+        // Start listening
+        window.addEventListener("deviceorientation", onOrient);
+        orientationActive = true;
         document.getElementById("startLevelBtn").disabled = true;
         document.getElementById("lockReadoutBtn").disabled = false;
       } catch (e) {
@@ -114,7 +116,6 @@
       }
     });
 
-    // Lock the readout after 3 seconds
     document.getElementById("lockReadoutBtn").addEventListener("click", () => {
       const lockBtn = document.getElementById("lockReadoutBtn");
       lockBtn.disabled = true;
@@ -123,18 +124,9 @@
           window.removeEventListener("deviceorientation", onOrient);
           orientationActive = false;
         }
-        document.getElementById("resetBtn").disabled = false;
+        document.getElementById("startLevelBtn").disabled = false;
         alert("Readout locked.");
       }, 3000);
-    });
-
-    // Reset to allow new measurement
-    document.getElementById("resetBtn").addEventListener("click", async () => {
-      document.getElementById("resetBtn").disabled = true;
-      document.getElementById("startLevelBtn").disabled = false;
-      document.getElementById("lockReadoutBtn").disabled = true;
-      document.getElementById("rollValue").textContent = "0.0";
-      document.getElementById("pitchValue").textContent = "0.0";
     });
   </script>
 </body>
