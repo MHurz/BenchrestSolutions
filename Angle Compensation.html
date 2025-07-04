@@ -55,7 +55,7 @@
   type="text"
   inputmode="decimal"
   pattern="[0-9]*[.,]?[0-9]*"
-  id="angle"
+  id="angleMag"
   placeholder="e.g. 15.2"
 />
 
@@ -82,18 +82,20 @@
   <script>
     let orientationActive = false;
 
-    function calculateTrueDistance() {
-      const distance = parseFloat(document.getElementById("lineDistance").value);
-      const angle = parseFloat(document.getElementById("angle").value);
-      const resultBox = document.getElementById("angleResult");
+function calculateTrueDistance() {
+  const distance = parseFloat(document.getElementById("lineDistance").value);
+  const sign     = parseInt  (document.getElementById("angleSign" ).value, 10);
+  const mag      = parseFloat(document.getElementById("angleMag"  ).value);
+  const resultBox= document.getElementById("angleResult");
 
-      if (isNaN(distance) || isNaN(angle)) {
-        resultBox.innerText = "Please enter valid numbers.";
-        return;
-      }
+  if (isNaN(distance) || isNaN(mag)) {
+    resultBox.innerText = "Please enter valid numbers.";
+    return;
+  }
 
-      const radians = angle * (Math.PI / 180);
-      const horizontal = distance * Math.cos(radians);
+  const angle = sign * mag;
+  const radians    = angle * (Math.PI / 180);
+  const horizontal = distance * Math.cos(radians);
       resultBox.innerText = `True horizontal distance: ${horizontal.toFixed(1)} yards`;
     }
 
