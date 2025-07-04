@@ -19,13 +19,7 @@
     .readout p {
       margin: 8px 0;
     }
-    button {
-      display: block;
-      margin: 10px auto;
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
+
     #lockReadoutBtn {
       background: #ccc;
       border: none;
@@ -58,10 +52,12 @@
     <button id="startLevelBtn">Start Level</button>
     <button id="lockReadoutBtn" disabled>Lock Readout (3s)</button>
 
-    <div class="readout" id="angleReadout">
-      <p>Roll: <span id="rollValue">0.0</span>°</p>
-      <p>Pitch: <span id="pitchValue">0.0</span>°</p>
-    </div>
+<div class="readout">
+  <p class="roll-readout">Roll: <span id="rollValue">0.0</span>°</p>
+  <p class="pitch-readout">Pitch: <span id="pitchValue">0.0</span>°</p>
+</div>
+    <a href="index.html" class="back-link">← Home</a>
+
   </div>
 
   <script>

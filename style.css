@@ -71,4 +71,15 @@ h2 {
   text-overflow: ellipsis;         /* show “…” if truncated */
   text-align: center;              /* optional: center the text */
 }
+/* Hide roll in portrait, show pitch only */
+@media (orientation: portrait) {
+  .roll-readout { display: none; }
+  .pitch-readout { display: block; }
+}
+
+/* Hide pitch in landscape, show roll only */
+@media (orientation: landscape) {
+  .roll-readout { display: block; }
+  .pitch-readout { display: none; }
+}
 

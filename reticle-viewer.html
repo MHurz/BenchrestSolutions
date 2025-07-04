@@ -31,8 +31,6 @@
     <h1>Reticle Reference Viewer</h1>
 <label for="reticleType">Select Reticle Type:</label>
 <select id="reticleType">
-  <option value="mil">MIL Reticle</option>
-  <option value="moa">MOA Reticle</option>
   <option value="viper">Viper HST VMR1 MRAD</option>
   <option value="dback">Diamondback HP Deadhold BDC</option>  <!-- new -->
 </select>
@@ -67,8 +65,6 @@ const reticles = {
   viper: {                                   // ← your new key
     src: 'Viper HST VMR1 MRAD.png',
     hotspots: [
-      // adjust these % values to match your exact subtension locations
-
     ]
   },
   dback: {
