@@ -62,3 +62,13 @@ h1 {
   text-align: center;              /* optional: center the text */
 }
 
+h2 {
+  width: 100%;                     /* fill the container’s content width */
+  margin: 0 auto 20px;             /* center and space below */
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  white-space: nowrap;             /* stay on one line */
+  overflow: hidden;                /* hide overflow if it still can’t fit */
+  text-overflow: ellipsis;         /* show “…” if truncated */
+  text-align: center;              /* optional: center the text */
+}
+

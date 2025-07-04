@@ -19,12 +19,23 @@
     .readout p {
       margin: 8px 0;
     }
-    #startLevelBtn {
+      #startLevelBtn, #lockReadoutBtn {
       display: block;
       margin: 20px auto 10px;
       padding: 10px 20px;
       font-size: 1rem;
-   }
+      cursor: pointer;
+    }
+    #lockReadoutBtn {
+      background: #ccc;
+      border: none;
+      border-radius: 4px;
+    }
+    #lockReadoutBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
   </style>
 </head>
 <body>
@@ -32,7 +43,7 @@
     <h1>Angle Compensation</h1>
 
     <label for="lineDistance">Straight-Line Distance to Target (yards):</label>
-    <input type="number" id="lineDistance" placeholder="e.g., 500" />
+    <input type="number" id="lineDistance" placeholder="e.g., 500yds" />
 
     <label for="angle">Angle to Target (degrees):</label>
     <input type="number" id="angle" placeholder="e.g., -15 for downhill" />
@@ -47,8 +58,9 @@
     <h2>Digital Angle Readout</h2>
     <button id="startLevelBtn">Start Level</button>
     <div class="readout" id="angleReadout">
-      <p>Roll: <span id="rollValue">0.0</span>°</p>
-      <p>Pitch: <span id="pitchValue">0.0</span>°</p>
+      <p>Horizontal Angle: <span id="rollValue">0.0</span>°</p>
+      <p>Vertical Angle: <span id="pitchValue">0.0</span>°</p>
+
     </div>
 
     <a href="index.html" class="back-link">← Home</a>
@@ -96,6 +108,28 @@
 
       document.getElementById("rollValue").textContent = roll.toFixed(1);
       document.getElementById("pitchValue").textContent = pitch.toFixed(1);
-    }  </script>
+    } 
+    
+        document.getElementById("startLevelBtn").addEventListener("click", async () => {
+      try {
+        await enableMotion();
+        window.addEventListener("deviceorientation", onOrient);
+        document.getElementById("startLevelBtn").style.display = "none";
+        const lockBtn = document.getElementById("lockReadoutBtn");
+        lockBtn.disabled = false;
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+
+    document.getElementById("lockReadoutBtn").addEventListener("click", () => {
+      const lockBtn = document.getElementById("lockReadoutBtn");
+      lockBtn.disabled = true;
+      setTimeout(() => {
+        window.removeEventListener("deviceorientation", onOrient);
+        alert("Readout locked.");
+      }, 3000);
+    });
+    </script>
 </body>
 </html>
