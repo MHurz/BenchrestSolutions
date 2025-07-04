@@ -6,27 +6,25 @@
   <title>Angle Compensation</title>
   <link rel="stylesheet" href="style.css" />
     <style>
-    .level-container {
-      position: relative;
-      width: 300px;
-      height: 300px;
+    .readout {
       margin: 20px auto;
-      border: 4px solid #333;
-      border-radius: 50%;
-      background: #eee;
-      overflow: hidden;
+      max-width: 300px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .bubble {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: rgba(0,200,0,0.6);
-      border: 2px solid #060;
-      border-radius: 50%;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      transition: top 0.1s, left 0.1s;
+    .readout p {
+      margin: 8px 0;
     }
+    #startLevelBtn {
+      display: block;
+      margin: 20px auto 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+   }
   </style>
 </head>
 <body>
@@ -46,10 +44,11 @@
 
     <hr />
 
-    <h2>Digital Bubble Level</h2>
+    <h2>Digital Angle Readout</h2>
     <button id="startLevelBtn">Start Level</button>
-    <div class="level-container" id="levelContainer">
-      <div class="bubble" id="bubble"></div>
+    <div class="readout" id="angleReadout">
+      <p>Roll: <span id="rollValue">0.0</span>°</p>
+      <p>Pitch: <span id="pitchValue">0.0</span>°</p>
     </div>
 
     <a href="index.html" class="back-link">← Home</a>
@@ -73,7 +72,6 @@
       resultBox.innerText = `True horizontal distance: ${horizontal.toFixed(1)} yards`;
     }
 
-    // Bubble level code
     async function enableMotion() {
       if (typeof DeviceMotionEvent !== "undefined" &&
           typeof DeviceMotionEvent.requestPermission === "function") {
@@ -93,25 +91,11 @@
     });
 
     function onOrient(e) {
-      const bubble = document.getElementById("bubble");
-      const container = document.getElementById("levelContainer");
-      const maxTilt = 30;
-      let x = e.gamma;
-      let y = e.beta;
+      const roll = e.gamma;   // left-to-right tilt
+      const pitch = e.beta;   // front-to-back tilt
 
-      x = Math.max(-maxTilt, Math.min(maxTilt, x));
-      y = Math.max(-maxTilt, Math.min(maxTilt, y));
-
-      const cx = container.clientWidth / 2;
-      const cy = container.clientHeight / 2;
-      const radius = (container.clientWidth - bubble.clientWidth) / 2;
-
-      const px = cx + (x / maxTilt) * radius;
-      const py = cy + (y / maxTilt) * radius;
-
-      bubble.style.left = px + "px";
-      bubble.style.top  = py + "px";
-    }
-  </script>
+      document.getElementById("rollValue").textContent = roll.toFixed(1);
+      document.getElementById("pitchValue").textContent = pitch.toFixed(1);
+    }  </script>
 </body>
 </html>
