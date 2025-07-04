@@ -6,6 +6,7 @@
   <title>Angle Compensation</title>
   <link rel="stylesheet" href="style.css" />
     <style>
+
     .readout {
       margin: 20px auto;
       max-width: 300px;
@@ -19,9 +20,9 @@
     .readout p {
       margin: 8px 0;
     }
-      #startLevelBtn, #lockReadoutBtn {
+    button {
       display: block;
-      margin: 20px auto 10px;
+      margin: 10px auto;
       padding: 10px 20px;
       font-size: 1rem;
       cursor: pointer;
@@ -31,11 +32,11 @@
       border: none;
       border-radius: 4px;
     }
-    #lockReadoutBtn:disabled {
+    #lockReadoutBtn:disabled,
+    #resetBtn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
-
   </style>
 </head>
 <body>
@@ -58,18 +59,16 @@
     <h2>Digital Angle Readout</h2>
     <button id="startLevelBtn">Start Level</button>
     <button id="lockReadoutBtn" disabled>Lock Readout (3s)</button>
+    <button id="resetBtn" disabled>Reset Readout</button>
     <div class="readout" id="angleReadout">
-      
-      <p>Horizontal Angle: <span id="rollValue">0.0</span>°</p>
-      <p>Vertical Angle: <span id="pitchValue">0.0</span>°</p>
-
+      <p>Roll: <span id="rollValue">0.0</span>°</p>
+      <p>Pitch: <span id="pitchValue">0.0</span>°</p>
     </div>
-
-    <a href="index.html" class="back-link">← Home</a>
-
   </div>
 
   <script>
+    let orientationActive = false;
+
     function calculateTrueDistance() {
       const distance = parseFloat(document.getElementById("lineDistance").value);
       const angle = parseFloat(document.getElementById("angle").value);
@@ -82,7 +81,6 @@
 
       const radians = angle * (Math.PI / 180);
       const horizontal = distance * Math.cos(radians);
-
       resultBox.innerText = `True horizontal distance: ${horizontal.toFixed(1)} yards`;
     }
 
@@ -101,25 +99,42 @@
       document.getElementById("pitchValue").textContent = pitch.toFixed(1);
     }
 
+    // Start level and enable lock
     document.getElementById("startLevelBtn").addEventListener("click", async () => {
       try {
         await enableMotion();
-        window.addEventListener("deviceorientation", onOrient);
-        document.getElementById("startLevelBtn").style.display = "none";
-        const lockBtn = document.getElementById("lockReadoutBtn");
-        lockBtn.disabled = false;
+        if (!orientationActive) {
+          window.addEventListener("deviceorientation", onOrient);
+          orientationActive = true;
+        }
+        document.getElementById("startLevelBtn").disabled = true;
+        document.getElementById("lockReadoutBtn").disabled = false;
       } catch (e) {
         alert(e.message);
       }
     });
 
+    // Lock the readout after 3 seconds
     document.getElementById("lockReadoutBtn").addEventListener("click", () => {
       const lockBtn = document.getElementById("lockReadoutBtn");
       lockBtn.disabled = true;
       setTimeout(() => {
-        window.removeEventListener("deviceorientation", onOrient);
+        if (orientationActive) {
+          window.removeEventListener("deviceorientation", onOrient);
+          orientationActive = false;
+        }
+        document.getElementById("resetBtn").disabled = false;
         alert("Readout locked.");
       }, 3000);
+    });
+
+    // Reset to allow new measurement
+    document.getElementById("resetBtn").addEventListener("click", async () => {
+      document.getElementById("resetBtn").disabled = true;
+      document.getElementById("startLevelBtn").disabled = false;
+      document.getElementById("lockReadoutBtn").disabled = true;
+      document.getElementById("rollValue").textContent = "0.0";
+      document.getElementById("pitchValue").textContent = "0.0";
     });
   </script>
 </body>
