@@ -44,14 +44,21 @@
       placeholder="e.g., 500yds"
     />
 
-    <label for="angle">Angle to Target (degrees):</label>
-    <input 
-      type="number"
-      inputmode="decimal"
-      pattern="[0-9]*[.,-]?[0-9]*"
-      id="angle"
-      placeholder="e.g., -15 for downhill"
-    />
+<label>Gradient:</label>
+<select id="angleSign">
+  <option value="1">Uphill (+)</option>
+  <option value="-1">Downhill (−)</option>
+</select>
+
+<label for="angleMag">Angle Magnitude (°):</label>
+<input
+  type="text"
+  inputmode="decimal"
+  pattern="[0-9]*[.,]?[0-9]*"
+  id="angleMag"
+  placeholder="e.g. 15.2"
+/>
+
 
     <button onclick="calculateTrueDistance()">Calculate Horizontal Distance</button>
 
