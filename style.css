@@ -4,11 +4,12 @@ body {
   background-color: #000000;
 }
 .container {
-  max-width: 400px;
-  margin: auto;
+  max-width: 600px;
+  margin: 0 auto;
   background: white;
-  padding: 20px;
+  padding: 0 20px;
   border-radius: 8px;
+  padding-top: 20px;
 }
 label, input, button {
   display: block;
@@ -44,20 +45,19 @@ hr {
 }
 
 .logo {
-  width: auto;
-  max-width: 200px;
-  height: auto;
-  margin: 20px auto;
   display: block;
+  width: 100%;           /* fills the container’s content area */
+  height: auto;          /* preserves aspect ratio */
+  margin: 20px 0;        /* vertical spacing only */
 }
 
 h1 {
-  font-size: 2rem;
-  white-space: nowrap;
+  width: 100%;                     /* fill the container’s content width */
+  margin: 0 auto 20px;             /* center and space below */
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  white-space: nowrap;             /* stay on one line */
+  overflow: hidden;                /* hide overflow if it still can’t fit */
+  text-overflow: ellipsis;         /* show “…” if truncated */
+  text-align: center;              /* optional: center the text */
 }
 
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.5rem;
-  }
-}
