@@ -1,92 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Benchrest Solutions - Barometric Estimator</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .readout {
-      margin: 20px auto;
-      max-width: 300px;
-      background: #f4f4f4;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-    .readout p {
-      font-size: 1.1rem;
-      margin: 10px 0;
-    }
-    button {
-      margin-top: 15px;
-      padding: 12px 20px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Estimated Barometric Pressure</h1>
-    
-    <button onclick="getPressureEstimate()">Get Pressure Estimate</button>
+<script>
+  function estimatePressure(elevationMeters) {
+    const seaLevelPressure = 1013.25; // hPa
+    const pressure = seaLevelPressure * Math.pow((1 - (0.0065 * elevationMeters) / 288.15), 5.255);
+    return pressure.toFixed(2);
+  }
 
-    <div class="readout">
-      <p>Latitude: <span id="latitude">-</span></p>
-      <p>Longitude: <span id="longitude">-</span></p>
-      <p>Elevation: <span id="elevation">-</span></p>
-      <p>Estimated Pressure: <span id="pressure">-</span> hPa</p>
-    </div>
-
-    <a href="index.html" class="back-link">← Home</a>
-  </div>
-
-  <script>
-    function estimatePressure(elevationMeters) {
-      const seaLevelPressure = 1013.25; // hPa
-      const pressure = seaLevelPressure * Math.pow((1 - (0.0065 * elevationMeters) / 288.15), 5.255);
-      return pressure.toFixed(2);
+  async function getPressureEstimate() {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported on this device.');
+      return;
     }
 
-    async function fetchElevationOpenTopo(lat, lon) {
-      const apiUrl = `https://corsproxy.io/?https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data || !data.results || !data.results[0] || typeof data.results[0].elevation !== "number") {
-        throw new Error("OpenTopoData returned no elevation.");
-      }
-      return data.results[0].elevation;
-    }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude.toFixed(5);
+      const lon = pos.coords.longitude.toFixed(5);
 
-    async function getPressureEstimate() {
-      if (!navigator.geolocation) {
-        alert('Geolocation is not supported on this device.');
-        return;
-      }
+      document.getElementById('latitude').textContent = lat;
+      document.getElementById('longitude').textContent = lon;
 
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const lat = pos.coords.latitude.toFixed(5);
-        const lon = pos.coords.longitude.toFixed(5);
+      const apiUrl = `https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`;
 
-        document.getElementById('latitude').textContent = lat;
-        document.getElementById('longitude').textContent = lon;
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-        try {
-          const elevationMeters = await fetchElevationOpenTopo(lat, lon);
-          const elevationFeet = (elevationMeters * 3.28084).toFixed(0);
-          const pressure = estimatePressure(elevationMeters);
+        console.log("Full elevation response:", data);
 
-          document.getElementById('elevation').textContent = `${elevationFeet} ft (${elevationMeters.toFixed(1)} m)`;
-          document.getElementById('pressure').textContent = `${pressure} hPa`;
-        } catch (err) {
-          console.error(err);
-          alert("Failed to retrieve elevation data.");
+        if (
+          !data ||
+          !data.results ||
+          !Array.isArray(data.results) ||
+          data.results.length === 0 ||
+          typeof data.results[0].elevation !== 'number'
+        ) {
+          throw new Error("Elevation data unavailable.");
         }
-      }, (err) => {
+
+        const elevationMeters = data.results[0].elevation;
+        const elevationFeet = (elevationMeters * 3.28084).toFixed(0);
+        const pressure = estimatePressure(elevationMeters);
+
+        document.getElementById('elevation').textContent = `${elevationFeet} ft`;
+        document.getElementById('pressure').textContent = `${pressure} hPa`;
+
+      } catch (err) {
         console.error(err);
-        alert("Unable to retrieve location.");
-      });
-    }
-  </script>
-</body>
-</html>
+        alert("Failed to retrieve elevation data. Please make sure Location Services are enabled in Safari settings.");
+      }
+    }, (err) => {
+      console.error(err);
+      alert("Unable to retrieve location. Please enable Location Services for Safari in iPhone settings.");
+    });
+  }
+</script>
