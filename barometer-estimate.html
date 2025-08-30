@@ -62,27 +62,27 @@
         document.getElementById('longitude').textContent = lon;
 
         // Open-Meteo Elevation API (Free, no key needed)
-        const apiUrl = `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`;
-        
-        try {
-          const response = await fetch(apiUrl);
-          const data = await response.json();
+        const apiUrl = `https://api.open-meteo.com/v1/elevation?locations=${lat},${lon}&elevation=1`;
 
-          if (!data || !data.elevation || typeof data.elevation !== 'number') {
-            throw new Error("Elevation data unavailable.");
-          }
+try {
+  const response = await fetch(apiUrl);
+  const data = await response.json();
 
-          const elevationMeters = data.elevation;
-          const elevationFeet = (elevationMeters * 3.28084).toFixed(0);
-          const pressure = estimatePressure(elevationMeters);
+  if (!data || !data.elevation || !Array.isArray(data.elevation) || data.elevation.length === 0) {
+    throw new Error("Elevation data unavailable.");
+  }
 
-          document.getElementById('elevation').textContent = `${elevationFeet} ft`;
-          document.getElementById('pressure').textContent = `${pressure} hPa`;
+  const elevationMeters = data.elevation[0].elevation;
+  const elevationFeet = (elevationMeters * 3.28084).toFixed(0);
+  const pressure = estimatePressure(elevationMeters);
 
-        } catch (err) {
-          console.error(err);
-          alert("Failed to retrieve elevation data.");
-        }
+  document.getElementById('elevation').textContent = `${elevationFeet} ft`;
+  document.getElementById('pressure').textContent = `${pressure} hPa`;
+
+} catch (err) {
+  console.error(err);
+  alert("Failed to retrieve elevation data.");
+}
       }, (err) => {
         console.error(err);
         alert("Unable to retrieve location.");
