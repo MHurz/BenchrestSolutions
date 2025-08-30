@@ -1,55 +1,76 @@
+<div class="readout">
+  <p>Lat: <span id="latitude">—</span></p>
+  <p>Lon: <span id="longitude">—</span></p>
+  <p>Elevation: <span id="elevation">—</span></p>
+  <p>Pressure: <span id="pressure">—</span></p>
+  <p id="status" style="font-size:0.95rem;color:#555">Tap the button to estimate.</p>
+  <button onclick="getPressureEstimate()">Get Pressure Estimate</button>
+</div>
+
 <script>
+  function $(id){ return document.getElementById(id); }
   function estimatePressure(elevationMeters) {
     const seaLevelPressure = 1013.25; // hPa
-    const pressure = seaLevelPressure * Math.pow((1 - (0.0065 * elevationMeters) / 288.15), 5.255);
-    return pressure.toFixed(2);
+    return (seaLevelPressure * Math.pow((1 - (0.0065 * elevationMeters) / 288.15), 5.255)).toFixed(2);
   }
 
   async function getPressureEstimate() {
+    const latEl = $('latitude'), lonEl = $('longitude'),
+          elevEl = $('elevation'), presEl = $('pressure'), statusEl = $('status');
+
+    const safeSet = (el, text) => { if (el) el.textContent = text; };
+
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported on this device.');
+      safeSet(statusEl, 'Geolocation not supported on this device.');
       return;
     }
+
+    safeSet(statusEl, 'Requesting location…');
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude.toFixed(5);
       const lon = pos.coords.longitude.toFixed(5);
 
-      document.getElementById('latitude').textContent = lat;
-      document.getElementById('longitude').textContent = lon;
+      safeSet(latEl, lat);
+      safeSet(lonEl, lon);
 
-      const apiUrl = `https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`;
+      const apiUrl = `https://api.opentopodata.org/v1/srtm90m?locations=${encodeURIComponent(lat)},${encodeURIComponent(lon)}`;
 
       try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), 8000); // 8s timeout
 
-        console.log("Full elevation response:", data);
+        const res = await fetch(apiUrl, { signal: controller.signal });
+        clearTimeout(t);
 
-        if (
-          !data ||
-          !data.results ||
-          !Array.isArray(data.results) ||
-          data.results.length === 0 ||
-          typeof data.results[0].elevation !== 'number'
-        ) {
-          throw new Error("Elevation data unavailable.");
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        // Expect: { results: [{ elevation: number }], status: "OK" }
+        if (!data || data.status !== 'OK' || !data.results || !data.results[0] || typeof data.results[0].elevation !== 'number') {
+          throw new Error(`API status ${data?.status || 'unknown'} or bad payload`);
         }
 
         const elevationMeters = data.results[0].elevation;
-        const elevationFeet = (elevationMeters * 3.28084).toFixed(0);
+        const elevationFeet = Math.round(elevationMeters * 3.28084);
         const pressure = estimatePressure(elevationMeters);
 
-        document.getElementById('elevation').textContent = `${elevationFeet} ft`;
-        document.getElementById('pressure').textContent = `${pressure} hPa`;
-
+        safeSet(elevEl, `${elevationFeet} ft`);
+        safeSet(presEl, `${pressure} hPa`);
+        safeSet(statusEl, 'Done.');
       } catch (err) {
         console.error(err);
-        alert("Failed to retrieve elevation data. Please make sure Location Services are enabled in Safari settings.");
+        safeSet(statusEl, 'Failed to retrieve elevation. Check location permission (While Using + Precise ON) and network.');
       }
     }, (err) => {
       console.error(err);
-      alert("Unable to retrieve location. Please enable Location Services for Safari in iPhone settings.");
+      safeSet(statusEl, 'Location denied or unavailable. Enable Location Services for the Home-Screen app (PWA).');
+    }, {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 10000
     });
   }
 </script>
