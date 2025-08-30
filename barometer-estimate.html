@@ -48,16 +48,6 @@
       return pressure.toFixed(2);
     }
 
-    async function fetchElevationOpenMeteo(lat, lon) {
-      const url = `https://api.open-meteo.com/v1/elevation?locations=${lat},${lon}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data || !data.elevation || !data.elevation[0] || typeof data.elevation[0].elevation !== "number") {
-        throw new Error("Open-Meteo returned no elevation.");
-      }
-      return data.elevation[0].elevation;
-    }
-
     async function fetchElevationOpenTopo(lat, lon) {
       const url = `https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`;
       const res = await fetch(url);
@@ -66,20 +56,6 @@
         throw new Error("OpenTopoData returned no elevation.");
       }
       return data.results[0].elevation;
-    }
-
-    async function getElevation(lat, lon) {
-      try {
-        return await fetchElevationOpenMeteo(lat, lon);
-      } catch (err1) {
-        console.warn("Open-Meteo failed:", err1.message);
-        try {
-          return await fetchElevationOpenTopo(lat, lon);
-        } catch (err2) {
-          console.warn("OpenTopoData failed:", err2.message);
-          throw new Error("Failed to retrieve elevation from both sources.");
-        }
-      }
     }
 
     async function getPressureEstimate() {
@@ -96,7 +72,7 @@
         document.getElementById('longitude').textContent = lon;
 
         try {
-          const elevationMeters = await getElevation(lat, lon);
+          const elevationMeters = await fetchElevationOpenTopo(lat, lon);
           const elevationFeet = (elevationMeters * 3.28084).toFixed(0);
           const pressure = estimatePressure(elevationMeters);
 
