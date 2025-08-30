@@ -1,72 +1,93 @@
-<div class="readout">
-  <p>Lat: <span id="latitude">—</span></p>
-  <p>Lon: <span id="longitude">—</span></p>
-  <p>Elevation: <span id="elevation">—</span></p>
-  <p>Pressure: <span id="pressure">—</span></p>
-  <p id="status" style="font-size:0.95rem;color:#555">Tap the button to estimate.</p>
-  <button onclick="getPressureEstimate()">Get Pressure Estimate</button>
-</div>
-
 <script>
   function $(id){ return document.getElementById(id); }
-  function estimatePressure(elevationMeters) {
-    const seaLevelPressure = 1013.25; // hPa
-    return (seaLevelPressure * Math.pow((1 - (0.0065 * elevationMeters) / 288.15), 5.255)).toFixed(2);
+  function estimatePressure(elevM) {
+    const P0 = 1013.25; // hPa
+    return (P0 * Math.pow(1 - (0.0065 * elevM) / 288.15, 5.255)).toFixed(2);
+  }
+
+  async function fetchJSON(url, opts = {}) {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), opts.timeoutMs ?? 8000);
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      const text = await res.text(); // capture raw for error visibility
+      let data;
+      try { data = JSON.parse(text); } catch { data = { _raw: text }; }
+      return { ok: res.ok, status: res.status, data };
+    } finally {
+      clearTimeout(t);
+    }
+  }
+
+  async function getElevation(lat, lon) {
+    const candidates = [
+      { name: 'OpenTopoData srtm90m', url: `https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`,
+        parse: d => (d && d.status === 'OK' && d.results?.[0]?.elevation) ?? null },
+      { name: 'OpenTopoData gmted2010', url: `https://api.opentopodata.org/v1/gmted2010?locations=${lat},${lon}`,
+        parse: d => (d && d.status === 'OK' && d.results?.[0]?.elevation) ?? null },
+      { name: 'Open-Meteo elevation', url: `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`,
+        parse: d => (typeof d?.elevation === 'number' ? d.elevation : (Array.isArray(d?.elevation) ? d.elevation[0] : null)) }
+    ];
+
+    const errors = [];
+    for (const c of candidates) {
+      const r = await fetchJSON(c.url);
+      if (r.ok) {
+        const elev = c.parse(r.data);
+        if (typeof elev === 'number' && isFinite(elev)) {
+          return { elevationMeters: elev, source: c.name };
+        } else {
+          errors.push(`${c.name}: OK ${r.status} but no elevation (payload: ${JSON.stringify(r.data).slice(0,200)}…)`);
+        }
+      } else {
+        errors.push(`${c.name}: HTTP ${r.status} (payload: ${JSON.stringify(r.data).slice(0,200)}…)`);
+      }
+    }
+    throw new Error(errors.join(' | '));
   }
 
   async function getPressureEstimate() {
     const latEl = $('latitude'), lonEl = $('longitude'),
           elevEl = $('elevation'), presEl = $('pressure'), statusEl = $('status');
 
-    const safeSet = (el, text) => { if (el) el.textContent = text; };
+    const set = (el, txt) => el && (el.textContent = txt);
 
     if (!navigator.geolocation) {
-      safeSet(statusEl, 'Geolocation not supported on this device.');
+      set(statusEl, 'Geolocation not supported.');
+      return;
+    }
+    if (!navigator.onLine) {
+      set(statusEl, 'Offline: check your connection.');
       return;
     }
 
-    safeSet(statusEl, 'Requesting location…');
+    set(statusEl, 'Requesting location…');
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude.toFixed(5);
       const lon = pos.coords.longitude.toFixed(5);
-
-      safeSet(latEl, lat);
-      safeSet(lonEl, lon);
-
-      const apiUrl = `https://api.opentopodata.org/v1/srtm90m?locations=${encodeURIComponent(lat)},${encodeURIComponent(lon)}`;
+      set(latEl, lat); set(lonEl, lon);
+      set(statusEl, 'Fetching elevation…');
 
       try {
-        const controller = new AbortController();
-        const t = setTimeout(() => controller.abort(), 8000); // 8s timeout
-
-        const res = await fetch(apiUrl, { signal: controller.signal });
-        clearTimeout(t);
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const data = await res.json();
-        // Expect: { results: [{ elevation: number }], status: "OK" }
-        if (!data || data.status !== 'OK' || !data.results || !data.results[0] || typeof data.results[0].elevation !== 'number') {
-          throw new Error(`API status ${data?.status || 'unknown'} or bad payload`);
-        }
-
-        const elevationMeters = data.results[0].elevation;
+        const { elevationMeters, source } = await getElevation(lat, lon);
         const elevationFeet = Math.round(elevationMeters * 3.28084);
         const pressure = estimatePressure(elevationMeters);
-
-        safeSet(elevEl, `${elevationFeet} ft`);
-        safeSet(presEl, `${pressure} hPa`);
-        safeSet(statusEl, 'Done.');
+        set(elevEl, `${elevationFeet} ft`);
+        set(presEl, `${pressure} hPa`);
+        set(statusEl, `Done via ${source}.`);
       } catch (err) {
         console.error(err);
-        safeSet(statusEl, 'Failed to retrieve elevation. Check location permission (While Using + Precise ON) and network.');
+        set(statusEl, `Failed to retrieve elevation: ${err.message}`);
       }
     }, (err) => {
       console.error(err);
-      safeSet(statusEl, 'Location denied or unavailable. Enable Location Services for the Home-Screen app (PWA).');
+      const map = {
+        1: 'Permission denied',
+        2: 'Position unavailable',
+        3: 'Request timeout'
+      };
+      set(statusEl, `Location error: ${map[err.code] || 'Unknown'} (${err.code})`);
     }, {
       enableHighAccuracy: true,
       maximumAge: 0,
