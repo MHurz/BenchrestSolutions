@@ -49,7 +49,7 @@
     }
 
     async function fetchElevationOpenTopo(lat, lon) {
-      const url = `https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`;
+      const apiUrl = `https://corsproxy.io/?https://api.opentopodata.org/v1/srtm90m?locations=${lat},${lon}`;
       const res = await fetch(url);
       const data = await res.json();
       if (!data || !data.results || !data.results[0] || typeof data.results[0].elevation !== "number") {
