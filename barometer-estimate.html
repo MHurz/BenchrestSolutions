@@ -49,7 +49,7 @@
     }
 
     async function fetchElevationOpenMeteo(lat, lon) {
-      const url = `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`;
+      const url = `https://api.open-meteo.com/v1/elevation?locations=${lat},${lon}`;
       const res = await fetch(url);
       const data = await res.json();
       if (!data || typeof data.elevation !== "number") throw new Error("Open-Meteo returned no elevation.");
