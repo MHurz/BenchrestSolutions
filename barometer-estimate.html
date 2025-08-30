@@ -34,7 +34,7 @@
     <div class="readout">
       <p>Latitude: <span id="latitude">-</span></p>
       <p>Longitude: <span id="longitude">-</span></p>
-      <p>Elevation: <span id="elevation">-</span> feet</p>
+      <p>Elevation: <span id="elevation">-</span> meters</p>
       <p>Estimated Pressure: <span id="pressure">-</span> hPa</p>
     </div>
 
@@ -73,7 +73,7 @@ try {
     throw new Error("Elevation data unavailable.");
   }
 
-  const elevationMeters = data.elevation[0].elevation;
+  const elevationMeters = data.elevation.elevation;
   const elevationFeet = (elevationMeters * 3.28084).toFixed(0);
   const pressure = estimatePressure(elevationMeters);
 
