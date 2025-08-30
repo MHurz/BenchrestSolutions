@@ -62,7 +62,8 @@
         document.getElementById('longitude').textContent = lon;
 
         // Open-Meteo Elevation API (Free, no key needed)
-        const apiUrl = `https://api.open-meteo.com/v1/elevation?locations=${lat},${lon}&elevation=1`;
+        const apiUrl = `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`;
+
 
 try {
   const response = await fetch(apiUrl);
